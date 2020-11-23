@@ -71,7 +71,12 @@ func (t *Trie) prefixSearch(agg []rune, x []rune) []rune {
 	next, ok := t.Load(x[0])
 	if !ok {
 		r, next := t.next()
-		return next.prefixSearch(append(agg, r), x[1:])
+		if next != nil {
+			return next.prefixSearch(append(agg, r), x[1:])
+		}
 	}
-	return next.prefixSearch(append(agg, x[0]), x[1:])
+	if next != nil {
+		return next.prefixSearch(append(agg, x[0]), x[1:])
+	}
+	return []rune{}
 }

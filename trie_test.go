@@ -48,9 +48,15 @@ func TestTrie_PrefixSearch(t *testing.T) {
 		},
 		{
 			name:   "No match, multi value",
-			inputs: []string{"test", "tent"},
+			inputs: []string{"test", "tist"},
 			prefix: "tem",
 			want:   "test",
+		},
+		{
+			name:   "prefix longer than tree",
+			inputs: []string{"test", "tist"},
+			prefix: "testify",
+			want:   "",
 		},
 	}
 	for _, tt := range tests {
