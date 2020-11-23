@@ -19,4 +19,12 @@ generate:
 test:
 	@echo go test ./...
 	@go test ./...
-	@go test -bench=.
+
+bench:
+	@echo Running benchmarks...
+	@go test -run=. -bench=. -benchtime=5s -count 2 -benchmem -cpuprofile=cpu.out -memprofile=mem.out -trace=trace.out | tee bench.txt
+	@echo For further analysis...
+	@echo go tool pprof -http :8080 cpu.out
+	@echo go tool pprof -http :8081 mem.out
+	@echo go tool trace trace.out
+	@echo go run golang.org/x/perf/cmd/benchstat bench.txt

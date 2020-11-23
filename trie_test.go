@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	"github.com/bredr/trie"
-	dp_trie "github.com/derekparker/trie"
 )
 
 func TestTrie_PrefixSearch(t *testing.T) {
@@ -68,6 +67,15 @@ func TestTrie_PrefixSearch(t *testing.T) {
 	}
 }
 
+func TestTrie_Remove(t *testing.T) {
+	tr := &trie.Trie{}
+	tr.Insert("test")
+	tr.Remove("test")
+	if got := tr.PrefixSearch("test"); got != "" {
+		t.Error("Expect no result")
+	}
+}
+
 func addFromFile(t *trie.Trie, path string) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -94,27 +102,9 @@ func BenchmarkPrefixSearch(b *testing.B) {
 	}
 }
 
-func addDerekParkerFromFile(t *dp_trie.Trie, path string) {
-	file, err := os.Open(path)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	reader := bufio.NewScanner(file)
-
-	for reader.Scan() {
-		t.Add(reader.Text(), nil)
-	}
-
-	if reader.Err() != nil {
-		log.Fatal(err)
-	}
-}
-func BenchmarkDerekParkerPrefixSearch(b *testing.B) {
-	t := dp_trie.New()
-	addDerekParkerFromFile(t, "/usr/share/dict/words")
-	b.ResetTimer()
+func BenchmarkLoadWords(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		_ = t.PrefixSearch("fo")
+		t := &trie.Trie{}
+		addFromFile(t, "/usr/share/dict/words")
 	}
 }

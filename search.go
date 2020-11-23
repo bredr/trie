@@ -20,6 +20,25 @@ func (t *Trie) insert(x []rune) {
 	}
 }
 
+func (t *Trie) Remove(x string) {
+	t.remove([]rune(x))
+}
+
+func (t *Trie) remove(x []rune) {
+	if len(x) == 0 {
+		return
+	}
+	next, ok := t.Load(x[0])
+	if !ok {
+		return
+	}
+	if len(x) == 1 {
+		next.Delete(rune('\n'))
+		return
+	}
+	next.remove(x[1:])
+}
+
 func (t *Trie) PrefixSearch(x string) string {
 	return string(t.prefixSearch([]rune{}, []rune(x)))
 }
@@ -44,7 +63,10 @@ func (t *Trie) prefixSearch(agg []rune, x []rune) []rune {
 			return agg
 		}
 		r, next := t.next()
-		return next.prefixSearch(append(agg, r), []rune{})
+		if next != nil {
+			return next.prefixSearch(append(agg, r), []rune{})
+		}
+		return []rune{}
 	}
 	next, ok := t.Load(x[0])
 	if !ok {
