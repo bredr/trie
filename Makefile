@@ -1,4 +1,4 @@
-all: install-tools generate lint test
+all: install-tools lint test
 
 download:
 	@echo Download go.mod dependencies
@@ -11,10 +11,6 @@ install-tools: download
 lint:
 	@echo golangci-lint run
 	@./bin/golangci-lint run
-
-generate:
-	@echo go generate ./...
-	@go generate ./...
 
 test:
 	@echo go test ./...

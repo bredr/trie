@@ -61,7 +61,7 @@ func TestTrie_PrefixSearch(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tr := &trie.Trie{}
+			tr := trie.New()
 			for _, v := range tt.inputs {
 				tr.Insert(v)
 			}
@@ -74,7 +74,7 @@ func TestTrie_PrefixSearch(t *testing.T) {
 }
 
 func TestTrie_Remove(t *testing.T) {
-	tr := &trie.Trie{}
+	tr := trie.New()
 	tr.Insert("test")
 	tr.Remove("test")
 	if got := tr.PrefixSearch("test"); got != "" {
@@ -100,7 +100,7 @@ func addFromFile(t *trie.Trie, path string) {
 }
 
 func BenchmarkPrefixSearch(b *testing.B) {
-	t := &trie.Trie{}
+	t := trie.New()
 	addFromFile(t, "/usr/share/dict/words")
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -110,7 +110,20 @@ func BenchmarkPrefixSearch(b *testing.B) {
 
 func BenchmarkLoadWords(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		t := &trie.Trie{}
-		addFromFile(t, "/usr/share/dict/words")
+		t := trie.New()
+
+		file, err := os.Open("/usr/share/dict/words")
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		reader := bufio.NewScanner(file)
+		for reader.Scan() {
+			t.Insert(reader.Text())
+		}
+
+		if reader.Err() != nil {
+			log.Fatal(err)
+		}
 	}
 }

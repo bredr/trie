@@ -17,6 +17,3 @@ bench.txt
 
 # Local tool folder
 bin
-
-# generated files
-trie.go
