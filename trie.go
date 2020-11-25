@@ -4,22 +4,22 @@ import "sync"
 
 type Trie struct {
 	mu sync.Mutex
-	t  *trie
+	t  trie
 }
 
 type trie struct {
-	m map[rune]*trie
+	m map[rune]trie
 }
 
 func New() *Trie {
 	return &Trie{sync.Mutex{}, newTrie()}
 }
 
-func newTrie() *trie {
-	return &trie{make(map[rune]*trie)}
+func newTrie() trie {
+	return trie{make(map[rune]trie)}
 }
 
-func (t *trie) LoadOrStore(x rune, n *trie) (*trie, bool) {
+func (t *trie) LoadOrStore(x rune, n trie) (trie, bool) {
 	next, ok := t.m[x]
 	if !ok {
 		t.m[x] = n
@@ -28,12 +28,12 @@ func (t *trie) LoadOrStore(x rune, n *trie) (*trie, bool) {
 	return next, false
 }
 
-func (t *trie) Load(key rune) (value *trie, ok bool) {
+func (t *trie) Load(key rune) (value trie, ok bool) {
 	v, ok := t.m[key]
 	return v, ok
 }
 
-func (t *trie) Range(f func(key rune, value *trie) bool) {
+func (t *trie) Range(f func(key rune, value trie) bool) {
 	for k, v := range t.m {
 		if f(k, v) {
 			return
@@ -56,7 +56,8 @@ func (t *trie) insert(x []rune) {
 		return
 	}
 	next, _ := t.LoadOrStore(x[0], newTrie())
-	if next != nil {
+
+	if len(next.m) == 0 {
 		if len(x) == 1 && x[0] != rune('\n') {
 			next.insert([]rune{'\n'})
 			return
@@ -95,8 +96,8 @@ func (t *trie) isTerm() bool {
 	return ok
 }
 
-func (t *trie) next() (r rune, next *trie) {
-	t.Range(func(key rune, value *trie) bool {
+func (t *trie) next() (r rune, next trie) {
+	t.Range(func(key rune, value trie) bool {
 		r = key
 		next = value
 		return false
@@ -110,7 +111,7 @@ func (t *trie) prefixSearch(agg []rune, x []rune) []rune {
 			return agg
 		}
 		r, next := t.next()
-		if next != nil {
+		if len(next.m) != 0 {
 			return next.prefixSearch(append(agg, r), []rune{})
 		}
 		return []rune{}
@@ -118,12 +119,12 @@ func (t *trie) prefixSearch(agg []rune, x []rune) []rune {
 	next, ok := t.Load(x[0])
 	if !ok {
 		r, next := t.next()
-		if next != nil {
+		if len(next.m) != 0 {
 			return next.prefixSearch(append(agg, r), x[1:])
 		}
 		return []rune{}
 	}
-	if next != nil {
+	if len(next.m) != 0 {
 		return next.prefixSearch(append(agg, x[0]), x[1:])
 	}
 	return []rune{}
