@@ -56,14 +56,11 @@ func (t *trie) insert(x []rune) {
 		return
 	}
 	next, _ := t.LoadOrStore(x[0], newTrie())
-
-	if len(next.m) == 0 {
-		if len(x) == 1 && x[0] != rune('\n') {
-			next.insert([]rune{'\n'})
-			return
-		}
-		next.insert(x[1:])
+	if len(x) == 1 && x[0] != rune('\n') {
+		next.insert([]rune{'\n'})
+		return
 	}
+	next.insert(x[1:])
 }
 
 func (t *Trie) Remove(x string) {
